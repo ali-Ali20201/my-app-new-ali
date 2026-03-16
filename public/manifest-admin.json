@@ -8,7 +8,7 @@
   "theme_color": "#b91c1c",
   "icons": [
     {
-      "src": "/admin-icon.png",
+      "src": "/icon-admin.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
