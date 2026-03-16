@@ -6,10 +6,13 @@ export default function AdminPage() {
 
   // الخدعة: تغيير المانيفست بمجرد دخول صفحة الأدمن
   useEffect(() => {
-    const link = document.querySelector('link[rel="manifest"]');
-    if (link) {
-      (link as HTMLLinkElement).href = '/manifest-admin.json';
-    }
+    const link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
+    const originalHref = link.href; // حفظ الرابط الأصلي
+    link.href = '/manifest-admin.json'; // التبديل للأحمر
+
+    return () => {
+      link.href = originalHref; // إعادة الرابط الأصلي عند الخروج من الصفحة
+    };
   }, []);
 
   const checkPassword = () => {
