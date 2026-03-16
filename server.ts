@@ -2624,23 +2624,22 @@ async function startServer() {
       console.error("Failed to initialize Vite middleware:", e);
     }
   } else {
-    // تحديد مسار مجلد البناء
+    // 1. تحديد المسار الصحيح للمجلد
     const distPath = path.resolve(__dirname, "dist");
     
-    // 1. خدمة الملفات الثابتة (JS, CSS)
+    // 2. خدمة ملفات الواجهة الأمامية
     app.use(express.static(distPath));
 
-    // 2. توجيه الطلبات لـ index.html مع استثناء مسارات الـ API
+    // 3. توجيه جميع الطلبات (عدا الـ API) لملف index.html
     app.get("*", (req, res, next) => {
-      // إذا كان الطلب يبدأ بـ /api، دعه يمر للسيرفر ولا تحوله لصفحة الواجهة
+      // إذا كان الطلب يبدأ بـ /api، لا تلمسه (ليعمل الـ API)
       if (req.originalUrl.startsWith('/api')) {
         return next();
       }
-      // في غير ذلك، أرسل ملف index.html ليتم تحميل واجهة React
+      // إرسال صفحة الموقع
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
-
   const PORT = process.env.PORT || 3000;
   server.listen(PORT as number, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
