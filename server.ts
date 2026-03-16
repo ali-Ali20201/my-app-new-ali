@@ -2624,9 +2624,19 @@ async function startServer() {
       console.error("Failed to initialize Vite middleware:", e);
     }
   } else {
+    // تحديد مسار مجلد البناء
     const distPath = path.resolve(__dirname, "dist");
+    
+    // 1. خدمة الملفات الثابتة (JS, CSS)
     app.use(express.static(distPath));
-    app.use("*", (req, res) => {
+
+    // 2. توجيه الطلبات لـ index.html مع استثناء مسارات الـ API
+    app.get("*", (req, res, next) => {
+      // إذا كان الطلب يبدأ بـ /api، دعه يمر للسيرفر ولا تحوله لصفحة الواجهة
+      if (req.originalUrl.startsWith('/api')) {
+        return next();
+      }
+      // في غير ذلك، أرسل ملف index.html ليتم تحميل واجهة React
       res.sendFile(path.join(distPath, "index.html"));
     });
   }
