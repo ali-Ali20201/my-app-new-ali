@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 export default function InstallPWA() {
-  if (window.location.pathname === '/adminali20112024') return null;
+  const navigate = useNavigate();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  
+  // 1. التحقق مما إذا كان التطبيق مثبتاً بالفعل
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+
+  // 2. نجعل الصفحة تظهر دائماً بشكل افتراضي لكي لا تظهر شاشة بيضاء
+  const [showBanner, setShowBanner] = useState(true);
 
   useEffect(() => {
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowBanner(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
-
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setShowBanner(false);
-    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
@@ -24,15 +25,25 @@ export default function InstallPWA() {
   }, []);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response: ${outcome}`);
-    setDeferredPrompt(null);
-    setShowBanner(false);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`User response: ${outcome}`);
+      setDeferredPrompt(null);
+      // بعد التثبيت بنجاح، نوجهه للصفحة الرئيسية
+      navigate('/home');
+    } else {
+      // إذا كان المتصفح يمنع النافذة (مثل الآيفون)، نظهر له رسالة إرشادية
+      alert('لتثبيت التطبيق:\n\n📱 في الآيفون: اضغط زر المشاركة (السهم للأعلى) في أسفل الشاشة ثم اختر "إضافة للشاشة الرئيسية".\n\n🤖 في الأندرويد: من قائمة المتصفح (النقاط الثلاث) اختر "تثبيت التطبيق" أو "Add to Home screen".');
+    }
   };
 
-  if (!showBanner) return null;
+  // 3. إذا كان التطبيق مثبتاً، أو إذا كان الرابط هو رابط الأدمن، نوجهه فوراً ولا نظهر الشاشة الزرقاء
+  if (isStandalone || window.location.pathname === '/adminali20112024') {
+    return <Navigate to="/home" replace />;
+  }
+
+  if (!showBanner) return <Navigate to="/home" replace />;
 
   return (
     /* الخلفية الزرقاء التي تغطي كامل الشاشة كما في الصورة */
@@ -58,12 +69,20 @@ export default function InstallPWA() {
           ثبت التطبيق الآن للوصول السريع والتنبيهات الفورية
         </p>
 
-        {/* زر التثبيت بتصميم متناسق مع الخلفية */}
+        {/* زر التثبيت */}
         <button
           onClick={handleInstall}
-          className="w-full bg-white text-[#4f46e5] py-4 rounded-2xl text-xl font-bold shadow-xl hover:bg-indigo-50 transition-all active:scale-95"
+          className="w-full bg-white text-[#4f46e5] py-4 rounded-2xl text-xl font-bold shadow-xl hover:bg-indigo-50 transition-all active:scale-95 mb-4"
         >
           تثبيت التطبيق
+        </button>
+
+        {/* زر الدخول للموقع (مهم جداً لكي لا يعلق المستخدم) */}
+        <button
+          onClick={() => navigate('/home')}
+          className="w-full bg-transparent text-white border border-white/30 py-4 rounded-2xl text-lg font-bold hover:bg-white/10 transition-all active:scale-95"
+        >
+          الدخول للموقع
         </button>
 
       </div>
