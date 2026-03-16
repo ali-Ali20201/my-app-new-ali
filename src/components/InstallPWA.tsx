@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 
 export default function InstallPWA() {
+  if (window.location.pathname === '/adminali20112024') return null;
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState(false);
 
