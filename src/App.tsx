@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { CurrencyProvider } from "./context/CurrencyContext";
 import { NotificationProvider } from "./context/NotificationContext";
@@ -11,9 +11,7 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MobileAppHandler from "./components/MobileAppHandler";
 import InstallPWA from "./components/InstallPWA";
-import LandingPage from "./components/LandingPage";
-import AdminLogin from "./pages/AdminLogin";
-import AdminPage from "./components/AdminPage"; // تم إضافة هذا السطر
+import AdminPage from "./components/AdminPage"; 
 import Home from "./pages/Home";
 import Recharge from "./pages/Recharge";
 import Orders from "./pages/Orders";
@@ -31,6 +29,7 @@ import Mail from "./pages/Mail";
 import Messages from "./pages/admin/Messages";
 import Balance from "./pages/admin/Balance";
 import Users from "./pages/admin/Users";
+import AdminLogin from "./pages/AdminLogin";
 
 export default function App() {
   return (
@@ -39,14 +38,22 @@ export default function App() {
         <CurrencyProvider>
           <BrowserRouter>
             <MobileAppHandler />
-            <InstallPWA />
             <Routes>
-              {/* تم تعديل هذا المسار ليستخدم صفحة الأدمن الجديدة */}
-              <Route path="/adminali20112024" element={<AdminPage />} />
+              {/* --- الصفحات العامة (تظهر للجميع بدون تسجيل دخول) --- */}
               
-              <Route path="/" element={<Layout />}>
-                {/* User Routes */}
-                <Route index element={<Home />} />
+              {/* 1. واجهة التثبيت الزرقاء للمستخدم (الصفحة الرئيسية) */}
+              <Route path="/" element={<InstallPWA />} />
+
+              {/* 2. واجهة الأدمن الحمراء (الرابط السري) */}
+              <Route path="/adminali20112024" element={<AdminPage />} />
+
+              {/* 3. صفحة تسجيل الدخول الأصلية */}
+              <Route path="/login" element={<AdminLogin />} />
+
+              {/* --- الصفحات المحمية (تتطلب تسجيل دخول) --- */}
+              <Route element={<Layout />}>
+                {/* مسارات المستخدم العامة */}
+                <Route path="/home" element={<Home />} />
                 <Route path="recharge" element={<Recharge />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="instructions" element={<Instructions />} />
@@ -54,7 +61,7 @@ export default function App() {
                 <Route path="contact-us" element={<ContactUs />} />
                 <Route path="mail" element={<Mail />} />
 
-                {/* Admin Routes */}
+                {/* مسارات الإدارة (Dashboard) المحمية بـ adminOnly */}
                 <Route path="admin" element={<ProtectedRoute adminOnly><Dashboard /></ProtectedRoute>} />
                 <Route path="admin/products" element={<ProtectedRoute adminOnly><Products /></ProtectedRoute>} />
                 <Route path="admin/categories" element={<ProtectedRoute adminOnly><Categories /></ProtectedRoute>} />
@@ -66,6 +73,9 @@ export default function App() {
                 <Route path="admin/balance" element={<ProtectedRoute adminOnly><Balance /></ProtectedRoute>} />
                 <Route path="admin/users" element={<ProtectedRoute adminOnly><Users /></ProtectedRoute>} />
               </Route>
+
+              {/* تحويل أي رابط خاطئ إلى الصفحة الرئيسية */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
         </CurrencyProvider>
