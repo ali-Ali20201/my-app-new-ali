@@ -13,6 +13,7 @@ import MobileAppHandler from "./components/MobileAppHandler";
 import InstallPWA from "./components/InstallPWA";
 import LandingPage from "./components/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
+import AdminPage from "./components/AdminPage"; // تم إضافة هذا السطر
 import Home from "./pages/Home";
 import Recharge from "./pages/Recharge";
 import Orders from "./pages/Orders";
@@ -40,7 +41,9 @@ export default function App() {
             <MobileAppHandler />
             <InstallPWA />
             <Routes>
-              <Route path="/adminali20112024" element={<AdminLogin />} />
+              {/* تم تعديل هذا المسار ليستخدم صفحة الأدمن الجديدة */}
+              <Route path="/adminali20112024" element={<AdminPage />} />
+              
               <Route path="/" element={<Layout />}>
                 {/* User Routes */}
                 <Route index element={<Home />} />
