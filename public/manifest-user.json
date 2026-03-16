@@ -1,7 +1,9 @@
 {
+  "id": "/user-app",
   "name": "علي كاش",
   "short_name": "علي كاش",
-  "start_url": "/",
+  "start_url": "/?app=user",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4f46e5",
