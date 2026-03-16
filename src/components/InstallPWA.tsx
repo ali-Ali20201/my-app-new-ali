@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, X } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 export default function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -35,24 +35,16 @@ export default function InstallPWA() {
   if (!showBanner) return null;
 
   return (
-    /* التعديل: fixed inset-0 تجعل المستطيل يملأ الشاشة بالكامل بالطول والعرض */
+    /* الشاشة كاملة باللون الأبيض */
     <div className="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center p-6 animate-in fade-in duration-300" dir="rtl">
       
-      {/* زر الإغلاق في الزاوية العلوية */}
-      <button
-        onClick={() => setShowBanner(false)}
-        className="absolute top-6 left-6 p-2 text-gray-400 hover:text-gray-600"
-      >
-        <X size={32} />
-      </button>
-
-      {/* المحتوى المتمركز في وسط الشاشة تماماً */}
+      {/* المحتوى المتمركز في وسط الشاشة */}
       <div className="text-center flex flex-col items-center gap-6">
         
-        {/* النص المطلوب أعلاه */}
+        {/* النص العلوي */}
         <h2 className="text-2xl font-bold text-gray-900">حمل تطبيق علي كاش</h2>
 
-        {/* زر التثبيت الأزرق (النيلي) في المنتصف */}
+        {/* زر التثبيت الأزرق */}
         <button
           onClick={handleInstall}
           className="bg-indigo-600 text-white px-16 py-4 rounded-2xl text-xl font-bold shadow-2xl hover:bg-indigo-700 transition-all active:scale-95"
