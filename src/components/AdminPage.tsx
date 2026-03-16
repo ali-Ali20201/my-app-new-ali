@@ -5,13 +5,18 @@ export default function AdminPage() {
   const [isLogged, setIsLogged] = useState(false);
 
   // الخدعة: تغيير المانيفست بمجرد دخول صفحة الأدمن
+  // الخدعة: تغيير المانيفست بمجرد دخول صفحة الأدمن
   useEffect(() => {
-    const link = document.querySelector('link[rel="manifest"]') as HTMLLinkElement;
-    const originalHref = link.href; // حفظ الرابط الأصلي
-    link.href = '/manifest-admin.json'; // التبديل للأحمر
+    const link = document.getElementById('app-manifest') as HTMLLinkElement;
+    if (link) {
+      // إضافة رقم عشوائي في النهاية تجبر المتصفح على تحميل الملف الجديد وتجاهل الكاش
+      link.href = `/manifest-admin.json?v=${new Date().getTime()}`; 
+    }
 
     return () => {
-      link.href = originalHref; // إعادة الرابط الأصلي عند الخروج من الصفحة
+      if (link) {
+        link.href = `/manifest-user.json?v=${new Date().getTime()}`;
+      }
     };
   }, []);
 
