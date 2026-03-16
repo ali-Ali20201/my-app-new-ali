@@ -1,24 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [isLogged, setIsLogged] = useState(false);
 
-  // الخدعة: تغيير المانيفست بمجرد دخول صفحة الأدمن
-  // الخدعة: تغيير المانيفست بمجرد دخول صفحة الأدمن
-  useEffect(() => {
-    const link = document.getElementById('app-manifest') as HTMLLinkElement;
-    if (link) {
-      // إضافة رقم عشوائي في النهاية تجبر المتصفح على تحميل الملف الجديد وتجاهل الكاش
-      link.href = `/manifest-admin.json?v=${new Date().getTime()}`; 
-    }
-
-    return () => {
-      if (link) {
-        link.href = `/manifest-user.json?v=${new Date().getTime()}`;
-      }
-    };
-  }, []);
+  // تم حذف الـ useEffect القديم لأن المتصفح الآن يختار المانيفست الصحيح من ملف index.html مباشرة
 
   const checkPassword = () => {
     if (password === 'fadiali1985$') {
