@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -43,6 +44,90 @@ export default function Layout() {
   const [copied, setCopied] = useState(false);
   const [pushSupported, setPushSupported] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const urlBase64ToUint8Array = (base64String: string) => {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  };
+
+  useEffect(() => {
+    const requestNativePermission = async () => {
+      if (!user) return;
+
+      try {
+        const { Capacitor } = await import('@capacitor/core');
+        
+        // Native Platform (Android/iOS)
+        if (Capacitor.isNativePlatform()) {
+          const { PushNotifications } = await import('@capacitor/push-notifications');
+          let permStatus = await PushNotifications.checkPermissions();
+          
+          if (permStatus.receive === 'prompt') {
+            permStatus = await PushNotifications.requestPermissions();
+          }
+
+          if (permStatus.receive === 'granted') {
+            await PushNotifications.register();
+            setIsSubscribed(true);
+          }
+          return;
+        }
+
+        // Web Browser
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+          if (Notification.permission === 'default') {
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') {
+              subscribeToWebPush();
+            }
+          } else if (Notification.permission === 'granted') {
+            subscribeToWebPush();
+          }
+        }
+      } catch (error) {
+        console.error("Error requesting notification permission:", error);
+      }
+    };
+
+    const subscribeToWebPush = async () => {
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const keyRes = await apiFetch('/api/push/vapid-public-key');
+        const { publicKey } = await keyRes.json();
+
+        if (!publicKey) return;
+
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey)
+        });
+
+        await apiFetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: user.id,
+            subscription
+          })
+        });
+        setIsSubscribed(true);
+      } catch (err) {
+        console.error("Failed to subscribe to web push:", err);
+      }
+    };
+
+    requestNativePermission();
+  }, [user]);
 
   useEffect(() => {
     const checkPushStatus = async () => {
